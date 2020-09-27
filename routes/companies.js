@@ -10,8 +10,10 @@ const Company = require("../models/company")
 const createCompanySchema = require("../schemas/createCompanySchema.json")
 const updateCompanySchema = require("../schemas/updateCompanySchema.json")
 
+const { authRequired, adminRequired } = require("../middleware/auth")
+
 /**get companies */
-router.get('/', async(req, res, next) => {
+router.get('/', authRequired, async(req, res, next) => {
     try {
         const result = await Company.all(req.query.search, req.query.min, req.query.max);
         return res.json({ companies: result })
@@ -21,7 +23,7 @@ router.get('/', async(req, res, next) => {
 })
 
 /** get company using handle */
-router.get('/:handle', async(req, res, next) => {
+router.get('/:handle', authRequired, async(req, res, next) => {
     try {
         const handle = req.params.handle;
         const result = await Company.find(handle)
@@ -33,7 +35,7 @@ router.get('/:handle', async(req, res, next) => {
 })
 
 /** create a new company */
-router.post('/', async(req, res, next) => {
+router.post('/', adminRequired, async(req, res, next) => {
     try {
 
         const validation = jsonschema.validate(req.body, createCompanySchema)
@@ -58,7 +60,7 @@ router.post('/', async(req, res, next) => {
 })
 
 /**Update company info */
-router.put('/:handle', async(req, res, next) => {
+router.patch('/:handle', adminRequired, async(req, res, next) => {
     try {
 
         const validation = jsonschema.validate(req.body, updateCompanySchema)
@@ -85,7 +87,7 @@ router.put('/:handle', async(req, res, next) => {
 
 /**delete company */
 
-router.delete('/:handle', async(req, res, next) => {
+router.delete('/:handle', adminRequired, async(req, res, next) => {
     try {
         const handle = req.params.handle
         Company.delete(handle);

@@ -9,10 +9,10 @@ const ExpressError = require("../helpers/expressError");
 const User = require("../models/user")
 const createUserSchema = require("../schemas/createUserSchema.json")
 const editUserSchema = require("../schemas/editUserSchema.json")
-
+const { authRequired, correctUser } = require("../middleware/auth")
 
 /**get users */
-router.get('/', async(req, res, next) => {
+router.get('/', authRequired, async(req, res, next) => {
     try {
         const result = await User.all();
         return res.json({ users: result })
@@ -22,7 +22,7 @@ router.get('/', async(req, res, next) => {
 })
 
 /** get user using username */
-router.get('/:username', async(req, res, next) => {
+router.get('/:username', authRequired, async(req, res, next) => {
     try {
         const username = req.params.username;
         const result = await User.find(username)
@@ -61,7 +61,7 @@ router.post('/', async(req, res, next) => {
 })
 
 /**Update user info */
-router.put('/:username', async(req, res, next) => {
+router.patch('/:username', correctUser, async(req, res, next) => {
     try {
 
         const validation = jsonschema.validate(req.body, editUserSchema)
@@ -89,7 +89,7 @@ router.put('/:username', async(req, res, next) => {
 
 /**delete user */
 
-router.delete('/:username', async(req, res, next) => {
+router.delete('/:username', correctUser, async(req, res, next) => {
     try {
         const username = req.params.username;
         User.delete(username);

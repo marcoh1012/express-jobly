@@ -5,13 +5,15 @@ const router = new express.Router();
 const jsonschema = require('jsonschema');
 const { db } = require("../db");
 const ExpressError = require("../helpers/expressError");
+const auth = require("../middleware/auth");
+const { authRequired, adminRequired } = require("../middleware/auth");
 
 const Job = require("../models/job")
 const jobSchema = require("../schemas/jobSchema.json")
 
 
 /**get jobs */
-router.get('/', async(req, res, next) => {
+router.get('/', authRequired, async(req, res, next) => {
     try {
         const result = await Job.all(req.query.search, req.query.min_salary, req.query.min_equity);
         return res.json({ jobs: result })
@@ -21,7 +23,7 @@ router.get('/', async(req, res, next) => {
 })
 
 /** get job using id */
-router.get('/:id', async(req, res, next) => {
+router.get('/:id', authRequired, async(req, res, next) => {
     try {
         const id = req.params.id;
         const result = await Job.find(id)
@@ -33,7 +35,7 @@ router.get('/:id', async(req, res, next) => {
 })
 
 /** create a new job */
-router.post('/', async(req, res, next) => {
+router.post('/', adminRequired, async(req, res, next) => {
     try {
 
         const validation = jsonschema.validate(req.body, jobSchema)
@@ -57,7 +59,7 @@ router.post('/', async(req, res, next) => {
 })
 
 /**Update job info */
-router.put('/:id', async(req, res, next) => {
+router.patch('/:id', adminRequired, async(req, res, next) => {
     try {
 
         const validation = jsonschema.validate(req.body, jobSchema)
@@ -84,7 +86,7 @@ router.put('/:id', async(req, res, next) => {
 
 /**delete job */
 
-router.delete('/:id', async(req, res, next) => {
+router.delete('/:id', adminRequired, async(req, res, next) => {
     try {
         const id = req.params.id
         Job.delete(id);
