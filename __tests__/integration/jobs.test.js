@@ -46,7 +46,6 @@ describe("Test for job Routes", () => {
         test('get /jobs', async() => {
             const res = await request(app)
                 .get('/jobs');
-            console.log(res.body)
             const jobs = res.body.jobs;
             expect(jobs)
                 .toHaveLength(1);
